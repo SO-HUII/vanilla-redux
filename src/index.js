@@ -6,15 +6,27 @@ const number = document.querySelector("span");
 
 number.innerText = 0;
 
+const ADD = "ADD";
+const MINUS = "MINUS";
+
 // 데이터를 (유일하게) 수정할 수 있는 함수
 // state의 default 값 : 0
 const countModifier = (count = 0, action) => {
-  if (action.type === 'ADD') {
-    return count + 1;
-  } else if (action.type === 'MINUS') {
-    return count - 1;
+  // if (action.type === 'ADD') {
+  //   return count + 1;
+  // } else if (action.type === 'MINUS') {
+  //   return count - 1;
+  // }
+  // return count;
+
+  switch (action.type) {
+    case ADD:
+      return count + 1
+    case MINUS:
+      return count - 1
+    default:
+      return count
   }
-  return count;
 };
 
 // store: 데이터 저장하는 장소
@@ -27,8 +39,9 @@ const onChange = () => {
 // store에 변화가 있을 때마다 해당 function이 감지해서 불려짐.
 countStore.subscribe(onChange);
 
-add.addEventListener("click", () => countStore.dispatch({ type: "ADD" }));
-minus.addEventListener("click", () => countStore.dispatch({ type: "MINUS" }));
+// action은 object여야함. (ex. { type: "ADD" })
+add.addEventListener("click", () => countStore.dispatch({ type: ADD }));
+minus.addEventListener("click", () => countStore.dispatch({ type: MINUS }));
 
 // dispatch를 이용해 action 보내기
 // countStore.dispatch({ type: "ADD" });
