@@ -41,7 +41,8 @@ const reducer = (state = [], action) => {
   
   switch(action.type) {
     case ADD_TODO:
-      return [];
+      // state mutate 절대 안됨. 변형(수정)이 아니라 새로우 객체를 return 해야함.
+      return [...state, { text: action.text, id: Date.now() }];
     case DELETE_TODO:
       return [];
     default:
