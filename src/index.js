@@ -36,13 +36,22 @@ const countModifier = (count = 0, action) => {
   }
 };
 
+const addToDo = text => {
+  return { type: ADD_TODO, text, id: Date.now() };
+};
+
+const deleteToDo = id => {
+  return { type: DELETE_TODO, id };
+};
+
 const reducer = (state = [], action) => {
   console.log(action);
-  
-  switch(action.type) {
+
+  switch (action.type) {
     case ADD_TODO:
-      // state mutate 절대 안됨. 변형(수정)이 아니라 새로우 객체를 return 해야함.
-      return [...state, { text: action.text, id: Date.now() }];
+      // state mutate 절대 안됨.(read only) 
+      // 변형(수정)이 아니라 새로우 객체를 return 해야함.
+      return [{ text: action.text, id: action.id }, ...state];
     case DELETE_TODO:
       return [];
     default:
@@ -55,18 +64,48 @@ const countStore = createStore(countModifier);
 
 const store = createStore(reducer);
 
+store.subscribe(() => console.log(store.getState()));
+
 const onChange = () => {
   number.innerText = countStore.getState();
 };
 
+const paintToDos = () => {
+  const toDos = store.getState();
+  toDos.forEach(toDo => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.innerText = "DEL"
+    btn.addEventListener("click", dispatchDeleteToDo);
+    li.id = toDo.id;
+    li.innerText = toDo.text;
+    li.appendChild(btn);
+    ul.appendChild(li);  // li를 ul의 자식요소로 추가
+  });
+};
+
+store.subscribe(paintToDos);
+
 // store에 변화가 있을 때마다 해당 function이 감지해서 불려짐.
 countStore.subscribe(onChange);
+
+const dispatchAddToDo = text => {
+  // 공식문서에서는 reducer 안에서 Date.now()를 쓰지 않길 권장하고 있음.
+  // action에서 Date.now()를 쓰고, reducer로 값을 넘기도록 함.
+  store.dispatch(addToDo(text));
+};
+
+const dispatchDeleteToDo = e => {
+  // 지우고 싶은 li의 id
+  const id = e.target.parentNode.id;
+  store.dispatch(deleteToDo(id));
+};
 
 const onSubmit = e => {
   e.preventDefault();
   const toDo = input.value;
   input.value = "";
-  store.dispatch({ type: ADD_TODO, text: toDo });
+  dispatchAddToDo(toDo);
 };
 
 // action은 object여야함. (ex. { type: "ADD" })
@@ -79,3 +118,4 @@ form.addEventListener("submit", onSubmit);
 // countStore.dispatch({ type: "ADD" });
 
 // console.log(countStore.getState());
+
