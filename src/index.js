@@ -37,6 +37,8 @@ const countModifier = (count = 0, action) => {
 };
 
 const addToDo = text => {
+  // 공식문서에서는 reducer 안에서 Date.now()를 쓰지 않길 권장하고 있음.
+  // action에서 Date.now()를 쓰고, reducer로 값을 넘기도록 함.
   return { type: ADD_TODO, text, id: Date.now() };
 };
 
@@ -45,19 +47,19 @@ const deleteToDo = id => {
 };
 
 const reducer = (state = [], action) => {
-  console.log(action);
-
   switch (action.type) {
     case ADD_TODO:
+      const newToDoObj = { text: action.text, id: action.id };
       // state mutate 절대 안됨.(read only) 
       // 변형(수정)이 아니라 새로우 객체를 return 해야함.
-      return [{ text: action.text, id: action.id }, ...state];
+      return [newToDoObj, ...state];
     case DELETE_TODO:
-      return [];
+      const cleaned = state.filter(toDo => toDo.id !== action.id);
+      return cleaned;
     default:
       return state;
   }
-}
+};
 
 // store: 데이터 저장하는 장소
 const countStore = createStore(countModifier);
@@ -72,6 +74,7 @@ const onChange = () => {
 
 const paintToDos = () => {
   const toDos = store.getState();
+  ul.innerHTML = "";
   toDos.forEach(toDo => {
     const li = document.createElement("li");
     const btn = document.createElement("button");
@@ -90,14 +93,12 @@ store.subscribe(paintToDos);
 countStore.subscribe(onChange);
 
 const dispatchAddToDo = text => {
-  // 공식문서에서는 reducer 안에서 Date.now()를 쓰지 않길 권장하고 있음.
-  // action에서 Date.now()를 쓰고, reducer로 값을 넘기도록 함.
   store.dispatch(addToDo(text));
 };
 
 const dispatchDeleteToDo = e => {
   // 지우고 싶은 li의 id
-  const id = e.target.parentNode.id;
+  const id = parseInt(e.target.parentNode.id);
   store.dispatch(deleteToDo(id));
 };
 
