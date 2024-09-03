@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { addToDo } from "../store";
 
-function Home({ toDos }) {
+function Home() {
   const [text, setText] = useState("");
+
+  // useSelector는 getState와 같은 기능(store에서 정보를 가져옴). mapStateToProps의 대체재.
+  // useDispatch는 mapDispatchToProps의 대체재.
+  const toDo = useSelector(state => state);
+  const dispatch = useDispatch();
 
   function onChange(e) {
     setText(e.target.value);
@@ -10,6 +16,7 @@ function Home({ toDos }) {
 
   function onSubmit(e) {
     e.preventDefault();
+    dispatch(addToDo(text));
     setText("");
   }
   return (
@@ -20,14 +27,23 @@ function Home({ toDos }) {
         <button>Add</button>
       </form>
       <ul>
-        {JSON.stringify(toDos)}
+        {JSON.stringify(toDo)}
       </ul>
     </>
   );
 }
 
-function mapStateToProps(state, ownProps) {
-  return { toDos: state };
-}
+// 이전 방법
+// function mapStateToProps(state) {
+//   return { toDos: state };
+// }
 
-export default connect(mapStateToProps)(Home);
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     addToDo: (text) => dispatch(actionCreators.addToDo(text))
+//   };
+// }
+
+// export default connect(mapStateToProps, mapDispatchToProps)(Home);
+
+export default Home;
