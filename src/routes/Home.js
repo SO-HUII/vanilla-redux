@@ -20,7 +20,7 @@ function Home() {
     dispatch(addToDo(text));
     setText("");
   }
-
+  
   return (
     <>
       <h1>To Do</h1>
